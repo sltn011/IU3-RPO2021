@@ -25,6 +25,7 @@ Java_ru_iu3_labs_fclient_MainActivity_stringFromJNI(
 
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+#include "mbedtls/des.h"
 
 mbedtls_entropy_context entropy;
 mbedtls_ctr_drbg_context ctrDrbgContext;
@@ -53,4 +54,70 @@ Java_ru_iu3_labs_fclient_MainActivity_randomBytes(
     jbyteArray rnd = env->NewByteArray(n);
     env->SetByteArrayRegion(rnd, 0, n, reinterpret_cast<jbyte*>(buf.get()));
     return rnd;
+}
+
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_ru_iu3_labs_fclient_MainActivity_encrypt(
+        JNIEnv *env,
+        jclass clazz,
+        jbyteArray key,
+        jbyteArray data ) {
+    jsize keySize = env->GetArrayLength(key);
+    jsize dataSize = env->GetArrayLength(data);
+    SLOG_INFO("Encrypt: {} {}", keySize, dataSize);
+    if(keySize != 16 || dataSize <= 0) {
+        return env->NewByteArray(0);
+    }
+    mbedtls_des3_context ctx;
+    mbedtls_des3_init(&ctx);
+    jbyte *pKey = env->GetByteArrayElements(key, 0);
+    int rst = dataSize % 8;
+    int sz = dataSize + 8 - rst;
+    std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(sz);
+    for (int i = 7; i > rst; --i) {
+        buf[dataSize + i] = rst;
+    }
+    jbyte *pData = env->GetByteArrayElements(data, 0);
+    std::copy(pData, pData + dataSize, buf.get());
+    mbedtls_des3_set2key_enc(&ctx, reinterpret_cast<uint8_t*>(pKey));
+    int cn = sz / 8;
+    for (int i = 0; i < cn; ++i) {
+        mbedtls_des3_crypt_ecb(&ctx, buf.get() + i * 8, buf.get() + i * 8);
+    }
+    jbyteArray dout = env->NewByteArray(sz);
+    env->SetByteArrayRegion(dout, 0, sz, reinterpret_cast<jbyte *>(buf.get()));
+    env->ReleaseByteArrayElements(key, pKey, 0);
+    env->ReleaseByteArrayElements(data, pData, 0);
+    return dout;
+}
+
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_ru_iu3_labs_fclient_MainActivity_decrypt(
+        JNIEnv *env,
+        jclass clazz,
+        jbyteArray key,
+        jbyteArray data ) {
+    jsize keySize = env->GetArrayLength(key);
+    jsize dataSize = env->GetArrayLength(data);
+    SLOG_INFO("Decrypt: {} {}", keySize, dataSize);
+    if(keySize != 16 || dataSize <= 0 || (dataSize % 8) != 0) {
+        return env->NewByteArray(0);
+    }
+    mbedtls_des3_context ctx;
+    mbedtls_des3_init(&ctx);
+    jbyte *pKey = env->GetByteArrayElements(key, 0);
+    jbyte *pData = env->GetByteArrayElements(data, 0);
+    std::unique_ptr<uint8_t[]> buf = std::make_unique<uint8_t[]>(dataSize);
+    std::copy(pData, pData + dataSize, buf.get());
+    mbedtls_des3_set2key_dec(&ctx, reinterpret_cast<uint8_t*>(pKey));
+    int cn = dataSize / 8;
+    for (int i = 0; i < cn; ++i) {
+        mbedtls_des3_crypt_ecb(&ctx, buf.get() + i * 8, buf.get() + i * 8);
+    }
+    int sz = dataSize - 8 + buf[dataSize - 1];
+    jbyteArray dout = env->NewByteArray(cn * 8);
+    env->SetByteArrayRegion(dout, 0, cn * 8, reinterpret_cast<jbyte *>(buf.get()));
+    env->ReleaseByteArrayElements(key, pKey, 0);
+    env->ReleaseByteArrayElements(data, pData, 0);
+    return dout;
 }
