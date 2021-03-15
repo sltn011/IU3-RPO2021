@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,8 +13,17 @@ import android.widget.Toast;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,6 +65,13 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(intent, 0);
                 }
         );
+
+        Button httpClientTestButton = findViewById(R.id.htmlTest);
+        httpClientTestButton.setOnClickListener(
+                (View) -> {
+                    testHttpClient();
+                }
+        );
     }
 
     @Override
@@ -76,6 +93,38 @@ public class MainActivity extends AppCompatActivity {
             hex = null;
         }
         return hex;
+    }
+
+    protected void testHttpClient(){
+        new Thread(() -> {
+           try {
+               URL url = new URL("http://10.0.2.2:11237/api/v1/title");
+               HttpURLConnection urlConnection = (HttpURLConnection) (url.openConnection());
+               InputStream inputStream = urlConnection.getInputStream();
+               String html = IOUtils.toString(inputStream);
+               String title = getPageTitle(html);
+               runOnUiThread(() ->{
+                   Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
+               });
+           } catch (MalformedURLException e) {
+               Log.e("fapptag", "Malformed URL in http client test", e);
+           } catch (IOException e) {
+               Log.e("fapptag", "IO exception in http client test", e);
+           }
+        }).start();
+    }
+
+    protected String getPageTitle(String htmlCode) {
+        Pattern pattern = Pattern.compile("<title>(.+?)</title>", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(htmlCode);
+        String result;
+        if(matcher.find()) {
+            result = matcher.group(1);
+        }
+        else {
+            result = "not found";
+        }
+        return result;
     }
 
     /**
