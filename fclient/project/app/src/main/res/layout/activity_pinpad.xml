@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter Pin-Code"
+        android:textAlignment="center"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/txtPin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textAlignment="center"
+        android:textSize="28dp" />
+
+    <GridLayout
+        android:id="@+id/buttons"
+        android:layout_width="360dp"
+        android:layout_height="397dp"
+        android:layout_gravity="center"
+        android:layout_margin="170dp"
+        android:columnCount="3"
+        android:orientation="horizontal"
+        android:rowCount="4">
+
+        <Button
+            android:id="@+id/btnKey1"
+            style="@style/Button"
+            android:text="1" />
+
+        <Button
+            android:id="@+id/btnKey2"
+            style="@style/Button"
+            android:text="2" />
+
+        <Button
+            android:id="@+id/btnKey3"
+            style="@style/Button"
+            android:text="3" />
+
+        <Button
+            android:id="@+id/btnKey4"
+            style="@style/Button"
+            android:text="4" />
+
+        <Button
+            android:id="@+id/btnKey5"
+            style="@style/Button"
+            android:text="5" />
+
+        <Button
+            android:id="@+id/btnKey6"
+            style="@style/Button"
+            android:text="6" />
+
+        <Button
+            android:id="@+id/btnKey7"
+            style="@style/Button"
+            android:text="7" />
+
+        <Button
+            android:id="@+id/btnKey8"
+            style="@style/Button"
+            android:text="8" />
+
+        <Button
+            android:id="@+id/btnKey9"
+            style="@style/Button"
+            android:text="9" />
+
+        <Button
+            android:id="@+id/btnKey0"
+            style="@style/Button"
+            android:text="0" />
+
+        <Button
+            android:id="@+id/btnKeyOK"
+            style="@style/Button"
+            android:text="OK" />
+
+        <Button
+            android:id="@+id/btnKeyReset"
+            style="@style/Button"
+            android:text="Reset" />
+    </GridLayout>
+
+</LinearLayout>

@@ -64,7 +64,6 @@ Java_ru_iu3_labs_fclient_MainActivity_encrypt(
         jbyteArray data ) {
     jsize keySize = env->GetArrayLength(key);
     jsize dataSize = env->GetArrayLength(data);
-    SLOG_INFO("Encrypt: {} {}", keySize, dataSize);
     if(keySize != 16 || dataSize <= 0) {
         return env->NewByteArray(0);
     }
@@ -84,8 +83,8 @@ Java_ru_iu3_labs_fclient_MainActivity_encrypt(
     for (int i = 0; i < cn; ++i) {
         mbedtls_des3_crypt_ecb(&ctx, buf.get() + i * 8, buf.get() + i * 8);
     }
-    jbyteArray dout = env->NewByteArray(sz);
-    env->SetByteArrayRegion(dout, 0, sz, reinterpret_cast<jbyte *>(buf.get()));
+    jbyteArray dout = env->NewByteArray(sz - 8 + rst);
+    env->SetByteArrayRegion(dout, 0, sz - 8 + rst, reinterpret_cast<jbyte *>(buf.get()));
     env->ReleaseByteArrayElements(key, pKey, 0);
     env->ReleaseByteArrayElements(data, pData, 0);
     return dout;
@@ -99,7 +98,6 @@ Java_ru_iu3_labs_fclient_MainActivity_decrypt(
         jbyteArray data ) {
     jsize keySize = env->GetArrayLength(key);
     jsize dataSize = env->GetArrayLength(data);
-    SLOG_INFO("Decrypt: {} {}", keySize, dataSize);
     if(keySize != 16 || dataSize <= 0 || (dataSize % 8) != 0) {
         return env->NewByteArray(0);
     }
