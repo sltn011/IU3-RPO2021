@@ -30,7 +30,7 @@ CREATE TABLE `artists` (
   PRIMARY KEY (`id`),
   KEY `artistcountrykey_idx` (`countryid`),
   CONSTRAINT `artistcountrykey` FOREIGN KEY (`countryid`) REFERENCES `countries` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,6 +39,7 @@ CREATE TABLE `artists` (
 
 LOCK TABLES `artists` WRITE;
 /*!40000 ALTER TABLE `artists` DISABLE KEYS */;
+INSERT INTO `artists` VALUES (1,'Питер Брейгель',3,'16'),(2,'Иван Айвазовский',8,'19');
 /*!40000 ALTER TABLE `artists` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -54,7 +55,7 @@ CREATE TABLE `countries` (
   `name` varchar(64) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_UNIQUE` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,7 +64,7 @@ CREATE TABLE `countries` (
 
 LOCK TABLES `countries` WRITE;
 /*!40000 ALTER TABLE `countries` DISABLE KEYS */;
-INSERT INTO `countries` VALUES (1,'Голландия'),(3,'Италия'),(6,'Франция');
+INSERT INTO `countries` VALUES (1,'Голландия'),(3,'Италия'),(7,'Кения'),(8,'Россия'),(6,'Франция');
 /*!40000 ALTER TABLE `countries` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -120,6 +121,63 @@ LOCK TABLES `paintings` WRITE;
 /*!40000 ALTER TABLE `paintings` DISABLE KEYS */;
 /*!40000 ALTER TABLE `paintings` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `login` varchar(45) NOT NULL,
+  `password` varchar(64) DEFAULT NULL,
+  `email` varchar(45) NOT NULL,
+  `salt` varchar(64) DEFAULT NULL,
+  `token` varchar(256) DEFAULT NULL,
+  `activity` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `login_UNIQUE` (`login`),
+  UNIQUE KEY `email_UNIQUE` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (2,'admin','68bb794feb5aed3b53bee7fc92fb7ce4584abb87df117779f85301e18417edfe','admin@rpo.iu3.bmstu.ru','00','6d9a709b-4ed0-459d-aebd-d89124afcd1a','2021-05-08 22:56:49');
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `usersmuseums`
+--
+
+DROP TABLE IF EXISTS `usersmuseums`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `usersmuseums` (
+  `userid` int NOT NULL,
+  `museumid` int NOT NULL,
+  PRIMARY KEY (`userid`,`museumid`),
+  KEY `usersmuseumstomuseums_idx` (`museumid`),
+  CONSTRAINT `usersmuseumstomuseums` FOREIGN KEY (`museumid`) REFERENCES `museums` (`id`),
+  CONSTRAINT `usersmuseumstousers` FOREIGN KEY (`userid`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `usersmuseums`
+--
+
+LOCK TABLES `usersmuseums` WRITE;
+/*!40000 ALTER TABLE `usersmuseums` DISABLE KEYS */;
+/*!40000 ALTER TABLE `usersmuseums` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -130,4 +188,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-04-14 15:54:47
+-- Dump completed on 2021-05-09  2:07:08
